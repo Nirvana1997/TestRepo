@@ -3,40 +3,57 @@
 #include <sys/time.h>
 #include <unordered_map>
 #include <vector>
+#include "macro_loop.h"
 
 using namespace std;
 
+#define MARCO_LOOP_X 100
+
+#define DECLARE(n) CASE_##n,
+#define MACRO_LOOP_CMD(n) DECLARE(n)
 enum CASE
 {
-    CASE_1,
-    CASE_2,
-    CASE_3,
-    CASE_4,
-    CASE_5,
+    MACRO_LOOP(MARCO_LOOP_X)
 };
+#undef DECLARE 
+#undef MACRO_LOOP_CMD
 
 struct Param
 {
     int param = 0;
 };
 
-unordered_map<int, function<void(Param)> > mapFunc =
-    {
-        {CASE_1, [](Param param) {}},
-        {CASE_2, [](Param param) {}},
-        {CASE_3, [](Param param) {}},
-        {CASE_4, [](Param param) {}},
-        {CASE_5, [](Param param) {}},
-};
+void handleFunc(Param& param)
+{
+}
 
-vector<pair<int, function<void(Param)> > > vectorFunc =
-    {
-        make_pair(CASE_1, [](Param param) {}),
-        make_pair(CASE_2, [](Param param) {}),
-        make_pair(CASE_3, [](Param param) {}),
-        make_pair(CASE_4, [](Param param) {}),
-        make_pair(CASE_5, [](Param param) {}),
+#define DECLARE(n) {CASE_##n, [](Param& param) {handleFunc(param);}},
+#define MACRO_LOOP_CMD(n) DECLARE(n)
+unordered_map<int, function<void(Param&)> > mapFunc =
+{
+    MACRO_LOOP(MARCO_LOOP_X)
 };
+#undef DECLARE
+#undef MACRO_LOOP_CMD
+
+#define DECLARE(n) make_pair(CASE_##n, [](Param& param) {handleFunc(param);}),
+#define MACRO_LOOP_CMD(n) DECLARE(n)
+vector<pair<int, function<void(Param&)> > > vectorFunc =
+{
+    MACRO_LOOP(MARCO_LOOP_X)
+};
+#undef DECLARE
+#undef MACRO_LOOP_CMD
+
+
+#define DECLARE(n) [](Param& param) {handleFunc(param);},
+#define MACRO_LOOP_CMD(n) DECLARE(n)
+function<void(Param&)> arrayFunc[] =
+{
+    MACRO_LOOP(MARCO_LOOP_X)
+};
+#undef DECLARE
+#undef MACRO_LOOP_CMD
 
 void handleWithMap(CASE eCase, Param param)
 {
@@ -57,7 +74,7 @@ struct FindFunc
     {
     }
 
-    bool operator()(const pair<int, function<void(Param)> > p) const
+    bool operator()(const pair<int, function<void(Param&)> > p) const
     {
         return m_eCase == p.first;
     }
@@ -67,7 +84,7 @@ struct FindFunc
 
 void handleWithVector(CASE eCase, Param param)
 {
-    auto it = find_if(vectorFunc.begin(), vectorFunc.end(), [&](const pair<int, function<void(Param)> > &func) -> bool {
+    auto it = find_if(vectorFunc.begin(), vectorFunc.end(), [&](const pair<int, function<void(Param&)> > &func) -> bool {
         return eCase == func.first;
     });
     if (it != vectorFunc.end())
@@ -80,35 +97,25 @@ void handleWithVector(CASE eCase, Param param)
     }
 }
 
+#define DECLARE(n)     case CASE_##n:handleFunc(param);break;
+#define MACRO_LOOP_CMD(n) DECLARE(n)
 void handleWithSwitch(CASE eCase, Param param)
 {
     switch (eCase)
     {
-    case CASE_1:
-    {
-    }
-    break;
-    case CASE_2:
-    {
-    }
-    break;
-    case CASE_3:
-    {
-    }
-    break;
-    case CASE_4:
-    {
-    }
-    break;
-    case CASE_5:
-    {
-    }
-    break;
+        MACRO_LOOP(MARCO_LOOP_X)
     default:
     {
     }
     break;
     }
+}
+#undef DECLARE 
+#undef MACRO_LOOP_CMD
+
+void handleWithArray(CASE eCase, Param param)
+{
+    arrayFunc[eCase](param);
 }
 
 int main()
@@ -120,7 +127,7 @@ int main()
     srand(123);
     for (int i = 0; i < times; i++)
     {
-        CASE randCase = static_cast<CASE>(rand() % 5);
+        CASE randCase = static_cast<CASE>(rand() % MARCO_LOOP_X);
         handleWithMap(randCase, Param());
     }
     gettimeofday(&end, NULL);
@@ -132,7 +139,7 @@ int main()
     srand(123);
     for (int i = 0; i < times; i++)
     {
-        CASE randCase = static_cast<CASE>(rand() % 5);
+        CASE randCase = static_cast<CASE>(rand() % MARCO_LOOP_X);
         handleWithSwitch(randCase, Param());
     }
     gettimeofday(&end, NULL);
@@ -143,12 +150,23 @@ int main()
     srand(123);
     for (int i = 0; i < times; i++)
     {
-        CASE randCase = static_cast<CASE>(rand() % 5);
+        CASE randCase = static_cast<CASE>(rand() % MARCO_LOOP_X);
         handleWithVector(randCase, Param());
     }
     gettimeofday(&end, NULL);
     time_use = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
     cout << "vector:" << time_use / 1000 << "ms" << endl;
+
+    gettimeofday(&start, NULL);
+    srand(123);
+    for (int i = 0; i < times; i++)
+    {
+        CASE randCase = static_cast<CASE>(rand() % MARCO_LOOP_X);
+        handleWithArray(randCase, Param());
+    }
+    gettimeofday(&end, NULL);
+    time_use = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
+    cout << "array:" << time_use / 1000 << "ms" << endl;
 
     return 0;
 }
