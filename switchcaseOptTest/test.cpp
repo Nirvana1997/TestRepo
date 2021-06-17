@@ -7,7 +7,7 @@
 
 using namespace std;
 
-#define MARCO_LOOP_X 100
+#define MARCO_LOOP_X 5
 
 #define DECLARE(n) CASE_##n,
 #define MACRO_LOOP_CMD(n) DECLARE(n)
@@ -45,12 +45,22 @@ vector<pair<int, function<void(Param&)> > > vectorFunc =
 #undef DECLARE
 #undef MACRO_LOOP_CMD
 
-
 #define DECLARE(n) [](Param& param) {handleFunc(param);},
 #define MACRO_LOOP_CMD(n) DECLARE(n)
 function<void(Param&)> arrayFunc[] =
 {
-    MACRO_LOOP(MARCO_LOOP_X)
+  MACRO_LOOP(MARCO_LOOP_X)
+};
+#undef DECLARE
+#undef MACRO_LOOP_CMD
+
+typedef void (*FUNC_POINT)(Param&);
+
+#define DECLARE(n) handleFunc,
+#define MACRO_LOOP_CMD(n) DECLARE(n)
+FUNC_POINT arrayFuncPoint[] =
+{
+  MACRO_LOOP(MARCO_LOOP_X)
 };
 #undef DECLARE
 #undef MACRO_LOOP_CMD
@@ -118,6 +128,11 @@ void handleWithArray(CASE eCase, Param param)
     arrayFunc[eCase](param);
 }
 
+void handleWithArrayPoint(CASE eCase, Param param)
+{
+    arrayFuncPoint[eCase](param);
+}
+
 int main()
 {
     int times = 10000000;
@@ -167,6 +182,17 @@ int main()
     gettimeofday(&end, NULL);
     time_use = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
     cout << "array:" << time_use / 1000 << "ms" << endl;
+
+    gettimeofday(&start, NULL);
+    srand(123);
+    for (int i = 0; i < times; i++)
+    {
+        CASE randCase = static_cast<CASE>(rand() % MARCO_LOOP_X);
+        handleWithArray(randCase, Param());
+    }
+    gettimeofday(&end, NULL);
+    time_use = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
+    cout << "pointArray:" << time_use / 1000 << "ms" << endl;
 
     return 0;
 }
