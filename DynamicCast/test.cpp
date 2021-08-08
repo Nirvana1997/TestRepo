@@ -93,35 +93,47 @@ class SceneNpc : public SceneEntry
 
 int main()
 {
-  SceneUser* pUser = new SceneUser(1, "xiaoming");
-  int count = 0;
-  while (std::cin >> count)
-  {
-    int count2 = 0;
-    unsigned long long startTime = getUSec();
-    for (count2 = 0; count2 < count; ++count2)
-    {
-      SceneUser* pUser2 = (SceneUser*)(pUser);
-    }
-    unsigned long long endTime = getUSec();
-    std::cout << "显式转换,次数:" << count2 << ",耗时:" << endTime - startTime << std::endl;
+  // SceneUser* pUser = new SceneUser(1, "xiaoming");
+  // int count = 0;
+  // while (std::cin >> count)
+  // {
+  //   int count2 = 0;
+  //   unsigned long long startTime = getUSec();
+  //   for (count2 = 0; count2 < count; ++count2)
+  //   {
+  //     SceneUser* pUser2 = (SceneUser*)(pUser);
+  //   }
+  //   unsigned long long endTime = getUSec();
+  //   std::cout << "显式转换,次数:" << count2 << ",耗时:" << endTime - startTime << std::endl;
 
-    unsigned long long startTime2 = getUSec();
-    for (count2 = 0; count2 < count; ++count2)
-    {
-      SceneUser* pUser2 = static_cast<SceneUser*>(pUser);
-    }
-    unsigned long long endTime2 = getUSec();
-    std::cout << "static_cast,次数:" << count2 << ",耗时:" << endTime2 - startTime2 << std::endl;
+  //   unsigned long long startTime2 = getUSec();
+  //   for (count2 = 0; count2 < count; ++count2)
+  //   {
+  //     SceneUser* pUser2 = static_cast<SceneUser*>(pUser);
+  //   }
+  //   unsigned long long endTime2 = getUSec();
+  //   std::cout << "static_cast,次数:" << count2 << ",耗时:" << endTime2 - startTime2 << std::endl;
 
-    unsigned long long startTime3 = getUSec();
-    for (count2 = 0; count2 < count; ++count2)
-    {
-      SceneUser* pUser2 = dynamic_cast<SceneUser*>(pUser);
-    }
-    unsigned long long endTime3 = getUSec();
-    std::cout << "dynamic_cast,次数:" << count2 << ",耗时:" << endTime3 - startTime3 << std::endl;
-  }
-  delete pUser;
+  //   unsigned long long startTime3 = getUSec();
+  //   for (count2 = 0; count2 < count; ++count2)
+  //   {
+  //     SceneUser* pUser2 = dynamic_cast<SceneUser*>(pUser);
+  //   }
+  //   unsigned long long endTime3 = getUSec();
+  //   std::cout << "dynamic_cast,次数:" << count2 << ",耗时:" << endTime3 - startTime3 << std::endl;
+  // }
+  // delete pUser;
+
+
+  SceneEntry* entry = new SceneUser(1, "xiaoming");
+  SceneUser* p = dynamic_cast<SceneUser*>(entry);
+  SceneUser user(1,"");
+  SceneEntry& entry2 = user;
+  std::cout << typeid(entry).name() << std::endl;
+  std::cout << typeid(*entry).name() << std::endl;
+  std::cout << typeid(entry2).name() << std::endl; 
+  std::cout << &typeid(entry) << std::endl;
+  std::cout << &typeid(*entry) << std::endl;
+  std::cout << &typeid(entry2) << std::endl;
   return 0;
 }
