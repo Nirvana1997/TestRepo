@@ -39,7 +39,7 @@ int main()
 {
     XX xx;
     FuncPtr func;
-    char *p = (char*)&xx;
+    char *p = (char*)&xx;// 此处声明为char*的原因主要是为了+sizeof(xx)时加对应n个字节，从而方便获取n个字节后的地址
     // 获得虚函数表的地址
     int **vtbl = (int**)*(int**)p;
     // 输出虚函数表的地址，即vptr的值
