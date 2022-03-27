@@ -7,6 +7,12 @@ using namespace std;
 
 #define X 1000000
 
+int global = 0;
+void funcX()
+{
+  global++;
+}
+
 void checkEmpty(const set<int>& setNum)
 {
   for (int i = 0; i < X; i++)
@@ -15,7 +21,7 @@ void checkEmpty(const set<int>& setNum)
     {
       for (int j : setNum)
       {
-        cout << j << endl;
+        funcX();
       }
     }
   }
@@ -27,7 +33,7 @@ void noCheckEmpty(const set<int>& setNum)
   {
     for (int j : setNum)
     {
-      cout << j << endl;
+      funcX();
     }
   }
 }
@@ -38,7 +44,7 @@ void useIterator(const set<int>& setNum)
   {
     for (auto it = setNum.begin(); it != setNum.end(); it++)
     {
-      cout << *it << endl;
+      funcX();
     }
   }
 }
